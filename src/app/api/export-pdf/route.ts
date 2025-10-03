@@ -20,7 +20,7 @@ export async function POST(req: Request) {
 
     await browser.close();
 
-    return new NextResponse(pdfBuffer, {
+    return new NextResponse(Buffer.from(pdfBuffer), {
       headers: {
         "Content-Disposition": `attachment; filename=${filename || "export.pdf"}`,
         "Content-Type": "application/pdf",

@@ -55,15 +55,11 @@ export default function MessageItem({ message, onRegenerate }: Props) {
             <div className="text-10px leading-relaxed space-y-1">
               <ReactMarkdown
                 components={{
-                  p: ({ node, ...props }) => (
-                    <p className="mb-1" {...props} />
-                  ),
-                  ul: ({ node, ...props }) => (
+                  p: ({ ...props }) => <p className="mb-1" {...props} />,
+                  ul: ({ ...props }) => (
                     <ul className="mb-1 list-disc list-inside" {...props} />
                   ),
-                  li: ({ node, ...props }) => (
-                    <li className="mb-0" {...props} />
-                  ),
+                  li: ({ ...props }) => <li className="mb-0" {...props} />,
                 }}
               >
                 {message.text}

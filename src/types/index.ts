@@ -5,5 +5,5 @@ export interface Message {
     role: Role;
     text: string;
     createdAt: string;
-    metadata?: Record<string, any>;
+    metadata?: Record<string, unknown>;
 }
