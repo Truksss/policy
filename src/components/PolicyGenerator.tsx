@@ -8,6 +8,8 @@ import { marked } from "marked";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Loader2, FileText, FileDown } from "lucide-react";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
 export default function PolicyGenerator() {
   const [school, setSchool] = useState("");
@@ -62,8 +64,16 @@ export default function PolicyGenerator() {
     });
 
     if (!res.ok) {
-      alert("Export failed");
-      return;
+      console.error("Server PDF export failed", res.status, await res.text().catch(()=>'[no body]'));
+      // Try client-side fallback using html2canvas + jsPDF
+      try {
+        await generateClientPDF(filename);
+        return;
+      } catch (clientErr) {
+        console.error("Client PDF fallback failed", clientErr);
+        alert("Export failed");
+        return;
+      }
     }
 
     const blob = await res.blob();
@@ -79,6 +89,34 @@ export default function PolicyGenerator() {
     downloadFile("/api/export-pdf", `${school || "policy"}.pdf`);
   const exportDOCX = () =>
     downloadFile("/api/export-docx", `${school || "policy"}.docx`);
+
+  // Client-side PDF fallback for environments where server-side Puppeteer fails
+  const generateClientPDF = async (filename: string) => {
+    if (!editor) throw new Error("Editor not ready");
+    const container = document.createElement("div");
+    container.innerHTML = editor.getHTML();
+    container.style.width = "800px"; // reasonable width for PDF
+    container.style.padding = "20px";
+    document.body.appendChild(container);
+
+    try {
+      const canvas = await html2canvas(container, { scale: 2, useCORS: true });
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF({ unit: "pt", format: "a4" });
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+
+      // fit image to page
+      const imgProps = (pdf as any).getImageProperties(imgData);
+      const imgWidth = pageWidth;
+      const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+
+      pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+      pdf.save(filename);
+    } finally {
+      document.body.removeChild(container);
+    }
+  };
 
   return (
     <main className="relative min-h-screen bg-gradient-to-br from-slate-50 to-indigo-50 p-6 overflow-hidden">
