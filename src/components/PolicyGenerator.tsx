@@ -7,7 +7,7 @@ import StarterKit from "@tiptap/starter-kit";
 import { marked } from "marked";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Loader2, FileText, FileDown } from "lucide-react";
+import { Loader2, FileText} from "lucide-react";
 
 export default function PolicyGenerator() {
   const [school, setSchool] = useState("");
@@ -75,8 +75,8 @@ export default function PolicyGenerator() {
     window.URL.revokeObjectURL(url);
   };
 
-  const exportPDF = () =>
-    downloadFile("/api/export-pdf", `${school || "policy"}.pdf`);
+  // const exportPDF = () =>
+  //   downloadFile("/api/export-pdf", `${school || "policy"}.pdf`);
   const exportDOCX = () =>
     downloadFile("/api/export-docx", `${school || "policy"}.docx`);
 
